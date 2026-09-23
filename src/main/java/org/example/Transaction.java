@@ -1,7 +1,6 @@
 package org.example;
 
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.util.ArrayList;
 
 public class Transaction {
@@ -12,24 +11,37 @@ public class Transaction {
     public float value;
     public byte[] signature;
 
-    public ArrayList<TransactionInput> inputs = new ArrayList<TransactionInput>();
-    public ArrayList<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
+    //public ArrayList<TransactionInput> inputs = new ArrayList<TransactionInput>();
+    //public ArrayList<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
 
     private static int sequenceNumber = 0; // rough count of how many transactions have been generated
 
-    public Transaction(PublicKey from, PublicKey to, float value, ArrayList<TransactionInput> inputs) {
+    public Transaction(PublicKey from, PublicKey to, float value) {
         this.sender = from;
         this.recipient = to;
         this.value = value;
-        this.inputs = inputs;
+        //this.inputs = inputs;
 
     }
 
     private String calculateHash() {
         sequenceNumber++;
-        return StringUtil.applySha256(StringUtil.applySha256(String.valueOf(sender)) +
-                StringUtil.applySha256(String.valueOf(recipient)) +
-                Float.toString(value) + sequenceNumber);
+        return StringUtil.applySha256(
+                StringUtil.getStringFromKey(sender) +
+                StringUtil.getStringFromKey(recipient) + value + sequenceNumber
+        );
+    }
+
+
+    //Signs all the data we dont wish to be tampered with
+    public void generateSignature(PrivateKey privateKey) throws NoSuchAlgorithmException, InvalidKeyException {
+        String data = StringUtil.getStringFromKey(sender) + StringUtil.getStringFromKey(recipient) + value;
+        signature = StringUtil.applyECDASig(privateKey, data);
+    }
+
+    public boolean verifySignature() throws NoSuchAlgorithmException, SignatureException, NoSuchProviderException, InvalidKeyException {
+        String data = StringUtil.getStringFromKey(sender) + StringUtil.getStringFromKey(recipient) + value;
+        return StringUtil.verifyECDSASig(sender, data, signature);
     }
 
 

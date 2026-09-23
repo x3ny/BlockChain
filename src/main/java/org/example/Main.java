@@ -1,6 +1,8 @@
 package org.example;
 import com.google.gson.*;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import java.security.*;
 import java.util.ArrayList;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
@@ -8,35 +10,30 @@ import java.util.ArrayList;
 public class Main {
 
     public static ArrayList<Block> blockChain = new ArrayList<Block>();
-
     public static int difficulty = 5;
+    public static Wallet walletA;
+    public static Wallet walletB;
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, NoSuchProviderException {
 
-        blockChain.add(new Block("Hi i am the first block", "0"));
-        System.out.println("Trying to mine block 1...");
-        blockChain.get(0).mineBlock(difficulty);
+        //Secured by BouncyCastle
+        Security.addProvider(new BouncyCastleProvider());
+        walletA = new Wallet();
+        walletB = new Wallet();
 
+        walletA.generateKeyPair();
+        walletB.generateKeyPair();
 
-        blockChain.add(new Block("Hi i am the second block", blockChain.get(blockChain.size()-1).hash));
-        System.out.println("Trying to mine block 2...");
-        blockChain.get(1).mineBlock(difficulty);
+        System.out.println("Private and public keys");
+        System.out.println(StringUtil.getStringFromKey(walletA.privateKey));
+        System.out.println(StringUtil.getStringFromKey(walletA.publicKey));
 
-        blockChain.add(new Block("Hi i am the third block", blockChain.get(blockChain.size()-1).hash ));
-        System.out.println("Trying to mine block 3...");
-        blockChain.get(2).mineBlock(difficulty);
+        Transaction transaction = new Transaction(walletA.publicKey, walletB.publicKey, 5);
+        transaction.generateSignature(walletA.privateKey);
 
-        blockChain.add(new Block("The forth block is here", blockChain.get(blockChain.size()-1).hash));
-        System.out.println("Trying to mine block 4...");
-        blockChain.get(3).mineBlock(difficulty);
-
-        System.out.println("\nBlockchain is Valid: " +  isChainValid());
-
-        String blockChainJson = new GsonBuilder().setPrettyPrinting().create().toJson(blockChain);
-        System.out.println("\nThe block chain: ");
-        System.out.println(blockChainJson);
-
+        System.out.println("Is signature verified");
+        System.out.println(transaction.verifySignature());
 
 
 
