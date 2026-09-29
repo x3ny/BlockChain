@@ -18,6 +18,10 @@ public class Wallet {
 
     }
 
+    public Wallet() {
+
+    }
+
     public void generateKeyPair() throws NoSuchAlgorithmException, NoSuchProviderException {
         try{
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("ECDSA","BC");
