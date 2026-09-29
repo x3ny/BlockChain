@@ -4,15 +4,19 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
 
     public static ArrayList<Block> blockChain = new ArrayList<Block>();
+    public static HashMap<String, TransactionOutput> UTXOs = new HashMap<String, TransactionOutput>(); //list of all unspent transactions.
     public static int difficulty = 5;
     public static Wallet walletA;
     public static Wallet walletB;
+
+    public static float minimumTransaction = 3;
 
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, NoSuchProviderException {
@@ -29,7 +33,7 @@ public class Main {
         System.out.println(StringUtil.getStringFromKey(walletA.privateKey));
         System.out.println(StringUtil.getStringFromKey(walletA.publicKey));
 
-        Transaction transaction = new Transaction(walletA.publicKey, walletB.publicKey, 5);
+        Transaction transaction = new Transaction(walletA.publicKey, walletB.publicKey, 5 , null);
         transaction.generateSignature(walletA.privateKey);
 
         System.out.println("Is signature verified");
